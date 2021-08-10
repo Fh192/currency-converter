@@ -1,0 +1,25 @@
+.currenciesList {
+  position: absolute;
+  top: 85px;
+  left: 0;
+  width: calc(100% - (10px * 2));
+  align-self: flex-start;
+  max-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: #fff;
+  padding: 10px;
+  z-index: 100;
+ 
+}
+
+.noResults {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
