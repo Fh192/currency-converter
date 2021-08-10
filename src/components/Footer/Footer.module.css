@@ -1,0 +1,25 @@
+.lastUpdate {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: rgb(92, 102, 123);
+  font-size: 13px;
+  gap: 3px;
+  margin-top: 10px;
+}
+
+.currency {
+  color: #000;
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 5px;
+  color: red;
+}
+
+.timer {
+  width: 20px;
+}
