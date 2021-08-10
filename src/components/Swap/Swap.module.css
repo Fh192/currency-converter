@@ -1,0 +1,32 @@
+.swap,
+.swap button {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.swap button {
+  border-radius: 50%;
+  border: 1px solid rgb(221, 221, 221);
+  padding: 16px;
+}
+
+.swapAnimation {
+  animation: rotateSwapBtn 0.2s ease 0s 1 alternate forwards;
+}
+
+@media screen and (max-width: 570px) {
+  .swap {
+    transform: rotateZ(90deg);
+    transition: all 0.2s ease;
+  }
+}
+
+@keyframes rotateSwapBtn {
+  0% {
+    transform: rotateZ(0deg);
+  }
+  100% {
+    transform: rotateZ(180deg);
+  }
+}
