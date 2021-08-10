@@ -1,0 +1,36 @@
+.inputWrap {
+  position: relative;
+  gap: 4px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 130px;
+}
+
+.inputInner {
+  max-height: 50px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgb(221, 221, 221);
+  border-radius: 6px;
+  box-shadow: rgb(0 17 51 / 5%) 0px 3px 15px;
+  padding: 12px;
+}
+
+.inputInner input {
+  width: 100%;
+  color: rgb(20, 30, 55);
+}
+
+.inputName {
+  width: fit-content;
+  font-weight: 600;
+}
+
+.arrowWrap,
+.crossWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
