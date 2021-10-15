@@ -1,6 +1,7 @@
 export type Currencies = keyof typeof currencyFullName;
 export type CurrencyFullName = { [key in Currencies]: string };
 export type CurrencyCodeMap = { [key in Currencies]: string };
+export type CurrencyCode = typeof currencyCodes[number];
 
 export const currencyFullName = {
   ARS: 'Argentine Peso',
@@ -65,13 +66,78 @@ export const currencyFullName = {
   USD: 'US Dollar',
   VEF: 'Venezuelan BolÃ­var',
   VND: 'Vietnamese Dong',
-};
+} as const;
+export const currencyCodes = [
+  'AR',
+  'AU',
+  'AZ',
+  'BH',
+  'BT',
+  'BO',
+  'BR',
+  'GB',
+  'BN',
+  'CA',
+  'KY',
+  'CL',
+  'CN',
+  'CO',
+  'CZ',
+  'DK',
+  'EG',
+  'EU',
+  'FJ',
+  'GE',
+  'GH',
+  'HK',
+  'HU',
+  'IS',
+  'IN',
+  'ID',
+  'IL',
+  'JP',
+  'JO',
+  'KZ',
+  'KW',
+  'MY',
+  'MX',
+  'MA',
+  'TW',
+  'NZ',
+  'NI',
+  'NO',
+  'OM',
+  'PK',
+  'PY',
+  'PE',
+  'PH',
+  'PL',
+  'QA',
+  'RO',
+  'RU',
+  'SA',
+  'SG',
+  'ZA',
+  'KR',
+  'SE',
+  'CH',
+  'TH',
+  'TN',
+  'TR',
+  'UA',
+  'AE',
+  'UY',
+  'US',
+  'VE',
+  'VN',
+] as const;
+
 export const currencyCodeMap = Object.fromEntries(
   (Object.keys(currencyFullName) as Array<Currencies>).map(el => [
     el,
     el[0] + el[1],
   ])
-);
+) as { [key in Currencies]: CurrencyCode };
 
 export const setCommasInNumber = (value: string) => {
   const splitValue = value.split('.');

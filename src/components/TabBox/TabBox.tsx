@@ -1,105 +1,64 @@
 import React, { useState } from 'react';
 import styles from './TabBox.module.css';
-import { Currencies, errorMessage } from '../../common/common';
 import CurrencyInput from '../CurrencyInput/CurrencyInput';
 import { useEffect } from 'react';
-import currencyApi from '../../api/currency';
 import Footer from '../Footer/Footer';
 import AmountInput from '../AmountInput/AmountInput';
 import Swap from '../Swap/Swap';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
+import { getRates } from '../../store/reducers/currencyReducer';
+import { errors } from '../../types/apiTypes';
+import { setPercentChange, setRate } from '../../store/actions/currencyActions';
 
 const TabBox: React.FC = () => {
-  const [to, setTo] = useState<Currencies>('RUB');
-  const [from, setFrom] = useState<Currencies>('USD');
-  const [amount, setAmount] = useState('1.00');
-  const [currencyRate, setCurrencyRate] = useState(0);
-  const [changeInPercentage, setChangeInPercentage] = useState('');
-  const [lastUpdate, setLastUpdate] = useState('');
-  const [error, setError] = useState('');
+  const dispatch = useDispatch();
+
+  const { base, quote, error } = useSelector((s: RootState) => s.currency);
   const [countdown, setCountdown] = useState(0);
-  const [success, setSuccess] = useState(true);
-
-  const setLastCurrencyUpdate = (tm: string) => {
-    const date = new Date(tm).toString().split(' ');
-    const month = date[1];
-    const day = date[2][0] === '0' ? date[2][1] : date[2];
-    const year = date[3];
-    const time = date[4].split(':').slice(0, 2).join(':');
-
-    return setLastUpdate(`${month} ${day}, ${year}, ${time}`);
-  };
+  const [disableRequests, setDisableRequests] = useState(false);
 
   useEffect(() => {
-    const fetchRate = async () => {
-      const data = await currencyApi.getLatestRate(from, to);
+    if (error === errors[1]) {
+      dispatch(setRate(0));
+      dispatch(setPercentChange('0%'));
+    } else if (error === errors[2]) {
+      setCountdown(63);
+      setDisableRequests(true);
 
-      if (data.status) {
-        const rate = data.response[0].o;
-        const percents = data.response[0].cp;
-        const time = data.response[0].tm;
-
-        setChangeInPercentage(percents);
-        setLastCurrencyUpdate(time);
-        setCurrencyRate(+rate);
-        setError('');
-      } else {
-        if (data.msg === errorMessage) setCountdown(60);
-
-        if (
-          data.msg ===
-          'Sorry, Something wrong, or an invalid value. Please try again or check your required parameters.'
-        ) {
-          setError(`Sorry, this conversion is not supported (API restriction)`);
-        } else {
-          setError(`${data.msg} (API restriction)`);
-        }
-
-        setCurrencyRate(0);
-        setChangeInPercentage('');
-        setLastUpdate('');
-      }
-    };
-
-    if (success) fetchRate();
-  }, [from, to, success]);
-
-  useEffect(() => {
-    if (countdown === 60) {
-      setCountdown(60 - 1);
       const interval = setInterval(() => {
-        setCountdown(v => +(v - 1).toFixed(2));
+        setCountdown(c => {
+          if (c <= 0) {
+            setDisableRequests(false);
+            clearInterval(interval);
+            return 0;
+          }
+          return c - 1;
+        });
       }, 1000);
-      const timer = setTimeout(() => {
-        setError('');
-        setSuccess(true);
-        setCountdown(0);
-        clearTimeout(timer);
-        clearInterval(interval);
-      }, 60 * 1000);
-
-      setSuccess(false);
     }
-  }, [error, countdown]);
+  }, [error]);
+
+  useEffect(() => {
+    if (!disableRequests) {
+      if (base === quote) {
+        dispatch(setRate(1));
+        dispatch(setPercentChange('0%'));
+      } else {
+        dispatch(getRates(base, quote));
+      }
+    }
+  }, [base, quote, disableRequests, dispatch]);
 
   return (
     <div className={styles.tabBox}>
       <div className={styles.row}>
-        <AmountInput amount={amount} from={from} setAmount={setAmount} />
-        <CurrencyInput currency={from} label={'From'} setCurrency={setFrom} />
-        <Swap from={from} to={to} setFrom={setFrom} setTo={setTo} />
-        <CurrencyInput currency={to} label={'To'} setCurrency={setTo} />
+        <AmountInput />
+        <CurrencyInput disableRequests={disableRequests} label={'From'} />
+        <Swap disableRequests={disableRequests} />
+        <CurrencyInput disableRequests={disableRequests} label={'To'} />
       </div>
-
-      <Footer
-        countdown={countdown}
-        from={from}
-        to={to}
-        currencyRate={currencyRate}
-        changeInPercentage={changeInPercentage}
-        amount={amount}
-        lastUpdate={lastUpdate}
-        error={error}
-      />
+      <Footer countdown={countdown} />
     </div>
   );
 };

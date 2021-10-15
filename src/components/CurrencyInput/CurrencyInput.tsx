@@ -1,6 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { Currencies, currencyCodeMap } from '../../common/common';
+import { useSelector } from 'react-redux';
+import { currencyCodeMap } from '../../common/common';
 import useOnClickOutside from '../../hooks/useOnClickOutside';
+import { setBase, setQuote } from '../../store/actions/currencyActions';
+import { RootState } from '../../store/store';
 import Arrow from '../../svg/Arrow';
 import Cross from '../../svg/Сross';
 import CurrenciesList from '../CurrenciesList/CurrenciesList';
@@ -8,34 +11,42 @@ import Currency from '../Currency/Currency';
 import styles from './CurrencyInput.module.css';
 
 interface Props {
-  setCurrency: React.Dispatch<React.SetStateAction<Currencies>>;
-  currency: Currencies;
   label: 'To' | 'From';
+  disableRequests: boolean;
 }
 
-const CurrencyInput: React.FC<Props> = ({ label, currency, setCurrency }) => {
+const CurrencyInput: React.FC<Props> = ({ label, disableRequests }) => {
   const ref = useRef(null);
+
+  const currency = useSelector((s: RootState) =>
+    label === 'From' ? s.currency.base : s.currency.quote
+  );
+  const setCurrency = label === 'From' ? setBase : setQuote;
 
   const [selectMode, setSelectMode] = useState(false);
   const [filterValue, setFilterValue] = useState('');
 
   useOnClickOutside(ref, () => {
-    if (selectMode) setFilterValue('');
-    setSelectMode(false);
+    if (selectMode) {
+      setFilterValue('');
+      setSelectMode(false);
+    }
   });
+
+  const clickHandler = () => {
+    if (!disableRequests) {
+      setSelectMode(true);
+    }
+  };
 
   return (
     <div className={styles.inputWrap}>
-      <label
-        className={styles.inputName}
-        htmlFor='from'
-        onClick={() => setSelectMode(true)}
-      >
+      <label className={styles.inputName} htmlFor='from' onClick={clickHandler}>
         {label}
       </label>
-      <>
+      <div className={styles.wrapper} ref={ref}>
         {selectMode ? (
-          <div className={styles.inputInner} ref={ref}>
+          <div className={styles.inputInner}>
             <input
               type='text'
               id={label}
@@ -45,13 +56,7 @@ const CurrencyInput: React.FC<Props> = ({ label, currency, setCurrency }) => {
               placeholder='Type to search...'
               autoComplete='off'
             />
-            <CurrenciesList
-              filterValue={filterValue}
-              selectMode={selectMode}
-              setCurrency={setCurrency}
-              setSelectMode={setSelectMode}
-              setFilterValue={setFilterValue}
-            />
+
             <div
               className={styles.crossWrap}
               onClick={() => setSelectMode(false)}
@@ -60,10 +65,7 @@ const CurrencyInput: React.FC<Props> = ({ label, currency, setCurrency }) => {
             </div>
           </div>
         ) : (
-          <div
-            className={styles.currencyWrap}
-            onClick={() => setSelectMode(true)}
-          >
+          <div className={styles.currencyWrap} onClick={clickHandler}>
             <Currency
               countryCode={currencyCodeMap[currency]}
               selectMode={selectMode}
@@ -72,15 +74,19 @@ const CurrencyInput: React.FC<Props> = ({ label, currency, setCurrency }) => {
               setSelectMode={setSelectMode}
               setFilterValue={setFilterValue}
             />
-            <div
-              className={styles.arrowWrap}
-              onClick={() => setSelectMode(true)}
-            >
+            <div className={styles.arrowWrap} onClick={clickHandler}>
               <Arrow size='16px' />
             </div>
           </div>
         )}
-      </>
+        <CurrenciesList
+          setCurrency={setCurrency}
+          filterValue={filterValue}
+          selectMode={selectMode}
+          setSelectMode={setSelectMode}
+          setFilterValue={setFilterValue}
+        />
+      </div>
     </div>
   );
 };

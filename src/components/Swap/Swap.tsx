@@ -1,34 +1,36 @@
 import React, { useState } from 'react';
-import { Currencies } from '../../common/common';
+import { useDispatch, useSelector } from 'react-redux';
+import { setBase, setQuote } from '../../store/actions/currencyActions';
+import { RootState } from '../../store/store';
 import SwapIcon from '../../svg/SwapIcon';
 import styles from './Swap.module.css';
 
 interface Props {
-  from: Currencies;
-  to: Currencies;
-
-  setTo: React.Dispatch<React.SetStateAction<Currencies>>;
-  setFrom: React.Dispatch<React.SetStateAction<Currencies>>;
+  disableRequests: boolean;
 }
 
-const Swap: React.FC<Props> = ({ from, to, setFrom, setTo }) => {
+const Swap: React.FC<Props> = ({ disableRequests }) => {
+  const dispatch = useDispatch();
+
   const [swapping, setSwapping] = useState(false);
+  const { base, quote } = useSelector((s: RootState) => s.currency);
 
   const onSwap = () => {
-    setSwapping(true);
+    if (!disableRequests) {
+      setSwapping(true);
 
-    const timer = setTimeout(() => {
-      setSwapping(false);
-      clearTimeout(timer);
-    }, 0.2 * 1000);
-
-    setTo(from);
-    setFrom(to);
+      dispatch(setBase(quote));
+      dispatch(setQuote(base));
+    }
   };
 
   return (
-    <div className={styles.swap} onClick={onSwap}>
-      <button className={`${swapping && styles.swapAnimation}`}>
+    <div
+      className={styles.swap}
+      onClick={onSwap}
+      onAnimationEnd={() => setSwapping(false)}
+    >
+      <button className={`${swapping ? styles.swapAnimation : ''}`}>
         <SwapIcon size='16px' />
       </button>
     </div>

@@ -1,54 +1,41 @@
 import React from 'react';
-import {
-  Currencies,
-  currencyFullName,
-  setCommasInNumber,
-} from '../../../common/common';
+import { useSelector } from 'react-redux';
+import { currencyFullName, setCommasInNumber } from '../../../common/common';
+import { RootState } from '../../../store/store';
 import styles from './Result.module.css';
 
-interface Props {
-  from: Currencies;
-  to: Currencies;
-  currencyRate: number;
-  changeInPercentage: string;
-  amount: string;
-}
+const Result: React.FC = () => {
+  const { base, quote, amount, rate, change } = useSelector(
+    (s: RootState) => s.currency
+  );
 
-const Result: React.FC<Props> = ({
-  from,
-  to,
-  amount,
-  currencyRate,
-  changeInPercentage,
-}) => {
-  const fixedAmount = (+amount).toFixed(2);
+  const fixedAmount = (+amount || 1).toFixed(2);
+
+  const percentChangeStatus = change
+    ? change[0] === '+'
+      ? styles.higher
+      : change[0] === '-'
+      ? styles.lower
+      : styles.neutral
+    : '';
 
   return (
     <div className={styles.result}>
       <p className={styles.resultFrom}>
-        <span>{+amount > 0 ? setCommasInNumber(fixedAmount) : 1}&nbsp;</span>
-        <span>{currencyFullName[from]}&nbsp;</span>
+        <span>{setCommasInNumber(fixedAmount)}&nbsp;</span>
+        <span>{currencyFullName[base]}&nbsp;</span>
         <span>=</span>
       </p>
       <p className={styles.resultTo}>
         <span>
-          {+amount > 0
-            ? setCommasInNumber((currencyRate * +fixedAmount).toFixed(2))
-            : currencyRate.toFixed(2)}
+          {rate
+            ? setCommasInNumber((rate * +fixedAmount || 1).toFixed(2))
+            : '0.00'}
           &nbsp;
         </span>
-        <span>{`${currencyFullName[to]}s`}&nbsp;</span>
-        <sup
-          className={`${styles.percentageChange} ${
-            +changeInPercentage.replace('%', '') > 0
-              ? styles.higher
-              : +changeInPercentage.replace('%', '') < 0
-              ? styles.lower
-              : styles.neutral
-          }`}
-        >
-          {console.log()}
-          <span>{changeInPercentage}</span>
+        <span>{`${currencyFullName[quote]}s`}&nbsp;</span>
+        <sup className={`${styles.percentageChange} ${percentChangeStatus}`}>
+          <span>{change}</span>
         </sup>
       </p>
     </div>

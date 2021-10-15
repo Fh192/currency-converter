@@ -1,24 +1,37 @@
 import getSymbolFromCurrency from 'currency-symbol-map';
 import React from 'react';
-import { Currencies, setCommasInNumber } from '../../common/common';
+import { useDispatch, useSelector } from 'react-redux';
+import { setCommasInNumber } from '../../common/common';
+import { setAmount } from '../../store/actions/currencyActions';
+import { RootState } from '../../store/store';
 import styles from './AmountInput.module.css';
 
-interface Props {
-  from: Currencies;
-  amount: string;
+const AmountInput: React.FC = () => {
+  const dispatch = useDispatch();
+  const { base, amount } = useSelector((s: RootState) => s.currency);
 
-  setAmount: React.Dispatch<React.SetStateAction<string>>;
-}
-
-const AmountInput: React.FC<Props> = ({ from, amount, setAmount }) => {
   const onAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replaceAll(',', '');
 
-    if (isNaN(+value)) {
-      setAmount(a => a);
-    } else {
-      setAmount(value);
+    if (!isNaN(+value)) {
+      dispatch(setAmount(value));
     }
+  };
+
+  const blurHandler = () => {
+    if (+amount <= 0) {
+      dispatch(setAmount('1.00'));
+    } else {
+      dispatch(setAmount((+amount).toFixed(2).toString()));
+    }
+  };
+
+  const clickHandler = () => {
+    const value = Number.isInteger(+amount)
+      ? (+amount).toFixed(0).toString()
+      : amount;
+
+    dispatch(setAmount(value));
   };
 
   return (
@@ -28,25 +41,15 @@ const AmountInput: React.FC<Props> = ({ from, amount, setAmount }) => {
       </label>
       <div className={styles.inputInner}>
         <div className={styles.currencySymbol}>
-          {getSymbolFromCurrency(from)}
+          {getSymbolFromCurrency(base)}
         </div>
         <input
           type='text'
           id='amount'
           value={setCommasInNumber(amount)}
           onChange={onAmountChange}
-          onBlur={() => {
-            if (+amount <= 0) setAmount('1');
-            setAmount(a => (+a).toFixed(2).toString());
-          }}
-          onClick={() => {
-            setAmount(a => {
-              if (Number.isInteger(+a)) {
-                return (+a).toFixed(0).toString();
-              }
-              return a;
-            });
-          }}
+          onBlur={blurHandler}
+          onClick={clickHandler}
           autoComplete='off'
         />
       </div>

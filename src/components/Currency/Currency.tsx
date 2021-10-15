@@ -1,12 +1,19 @@
+import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import React from 'react';
-import { Currencies, currencyFullName } from '../../common/common';
+import { useDispatch } from 'react-redux';
+import {
+  Currencies,
+  CurrencyCode,
+  currencyFullName,
+} from '../../common/common';
 import styles from './Currency.module.css';
+import BTCImg from '../../assets/BTC.png';
 
 interface Props {
   currency: Currencies;
-  countryCode: string;
+  countryCode: CurrencyCode;
   selectMode: boolean;
-  setCurrency: React.Dispatch<React.SetStateAction<Currencies>>;
+  setCurrency: ActionCreatorWithPayload<Currencies>;
   setSelectMode: React.Dispatch<React.SetStateAction<boolean>>;
   setFilterValue: React.Dispatch<React.SetStateAction<string>>;
 }
@@ -19,21 +26,23 @@ const Currency: React.FC<Props> = ({
   setCurrency,
   setFilterValue,
 }) => {
+  const dispatch = useDispatch();
+
+  const clickHandler = () => {
+    if (selectMode) {
+      dispatch(setCurrency(currency));
+      setSelectMode(false);
+      setFilterValue('');
+    }
+  };
+  const imgLink =
+    currency === 'BTC'
+      ? BTCImg
+      : `https://www.countryflags.io/${countryCode}/flat/64.png`;
+
   return (
-    <li
-      className={styles.currency}
-      onClick={() => {
-        if (selectMode) {
-          setCurrency(currency);
-          setSelectMode(false);
-          setFilterValue('');
-        }
-      }}
-    >
-      <img
-        src={`https://www.countryflags.io/${countryCode}/flat/64.png`}
-        alt={`${countryCode} flag`}
-      />
+    <li className={styles.currency} onClick={clickHandler}>
+      <img src={imgLink} alt={`${countryCode} flag`} />
       <span>{currency}</span>
       <div className={styles.visible}>
         <span>&nbsp;–&nbsp;</span>

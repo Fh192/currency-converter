@@ -1,59 +1,47 @@
 import React from 'react';
-import {
-  Currencies,
-  currencyFullName,
-  errorMessage,
-} from '../../common/common';
+import { useSelector } from 'react-redux';
+import { currencyFullName } from '../../common/common';
+import { RootState } from '../../store/store';
+import { errors } from '../../types/apiTypes';
 import styles from './Footer.module.css';
 import Result from './Result/Result';
 
 interface Props {
-  from: Currencies;
-  to: Currencies;
-  currencyRate: number;
-  changeInPercentage: string;
-  amount: string;
-  lastUpdate: string;
-  error: string;
   countdown: number;
 }
 
-const Footer: React.FC<Props> = ({
-  countdown,
-  from,
-  to,
-  error,
-  lastUpdate,
-  ...props
-}) => {
+const Footer: React.FC<Props> = ({ countdown }) => {
+  const { base, quote, error, lastUpdate } = useSelector(
+    (s: RootState) => s.currency
+  );
+
+  const setLastCurrencyUpdate = (tm: number) => {
+    const date = new Date(
+      new Date(tm).getTime() + new Date(tm).getTimezoneOffset() * 60000
+    );
+    const month = date.toLocaleString('en', { month: 'short' });
+    const day = date.toLocaleString('en', { day: '2-digit' });
+    const year = date.getFullYear();
+    const time = date.toLocaleTimeString('ru', { timeStyle: 'short' });
+
+    return `${currencyFullName[base]} to ${currencyFullName[quote]}
+    conversion — Last updated ${month} ${day}, ${year}, ${time} UTC`;
+  };
+
   return (
     <div className={styles.footer}>
-      <Result
-        from={from}
-        to={to}
-        amount={props.amount}
-        currencyRate={props.currencyRate}
-        changeInPercentage={props.changeInPercentage}
-      />
-      {error.length > 0 && (
+      <Result />
+      {error && (
         <div className={styles.error}>
           <span>{`${error}`}</span>
-          {error === errorMessage + ' (API restriction)' && (
+          {error === errors[2] && (
             <span className={styles.timer}>{countdown}</span>
           )}
         </div>
       )}
       {lastUpdate && (
         <div className={styles.lastUpdate}>
-          <span>
-            <span>{currencyFullName[from]}</span>
-            {' to '}
-            <span>{currencyFullName[to]}</span>
-            {' conversion '}
-            {' — '}
-            <span>{`Last updated ${lastUpdate}`}</span>
-            {' UTC '}
-          </span>
+          <span>{setLastCurrencyUpdate(lastUpdate * 1000)}</span>
         </div>
       )}
     </div>
