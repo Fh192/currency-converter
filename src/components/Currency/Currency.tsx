@@ -8,6 +8,7 @@ import {
 } from '../../common/common';
 import styles from './Currency.module.css';
 import BTCImg from '../../assets/BTC.png';
+import { FlagIcon } from 'react-flag-kit';
 
 interface Props {
   currency: Currencies;
@@ -35,14 +36,15 @@ const Currency: React.FC<Props> = ({
       setFilterValue('');
     }
   };
-  const imgLink =
-    currency === 'BTC'
-      ? BTCImg
-      : `https://www.countryflags.io/${countryCode}/flat/64.png`;
 
   return (
     <li className={styles.currency} onClick={clickHandler}>
-      <img src={imgLink} alt={`${countryCode} flag`} />
+      {currency === 'BTC' ? (
+        <img src={BTCImg} alt='BTC' />
+      ) : (
+        <FlagIcon code={countryCode} />
+      )}
+
       <span>{currency}</span>
       <div className={styles.visible}>
         <span>&nbsp;–&nbsp;</span>
