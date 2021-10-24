@@ -51,7 +51,6 @@ const CurrencyInput: React.FC<Props> = ({ label, disableRequests }) => {
               type='text'
               id={label}
               value={filterValue}
-              autoFocus={true}
               onChange={e => setFilterValue(e.target.value.toUpperCase())}
               placeholder='Type to search...'
               autoComplete='off'

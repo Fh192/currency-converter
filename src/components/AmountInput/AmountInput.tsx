@@ -51,6 +51,7 @@ const AmountInput: React.FC = () => {
           onBlur={blurHandler}
           onClick={clickHandler}
           autoComplete='off'
+          inputMode='numeric'
         />
       </div>
     </div>

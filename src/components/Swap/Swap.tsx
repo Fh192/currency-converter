@@ -25,12 +25,12 @@ const Swap: React.FC<Props> = ({ disableRequests }) => {
   };
 
   return (
-    <div
-      className={styles.swap}
-      onClick={onSwap}
-      onAnimationEnd={() => setSwapping(false)}
-    >
-      <button className={`${swapping ? styles.swapAnimation : ''}`}>
+    <div className={styles.swap}>
+      <button
+        className={`${swapping ? styles.swapAnimation : ''}`}
+        onClick={onSwap}
+        onAnimationEnd={() => setSwapping(false)}
+      >
         <SwapIcon size='16px' />
       </button>
     </div>

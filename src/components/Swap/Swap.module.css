@@ -16,9 +16,12 @@
 }
 
 @media screen and (max-width: 570px) {
-  .swap {
+  .swap button {
     transform: rotateZ(90deg);
     transition: all 0.2s ease;
+  }
+  .swapAnimation {
+    animation: rotateSwapBtn2 0.2s ease 0s 1 alternate forwards;
   }
 }
 
@@ -28,5 +31,14 @@
   }
   100% {
     transform: rotateZ(180deg);
+  }
+}
+
+@keyframes rotateSwapBtn2 {
+  0% {
+    transform: rotateZ(90deg);
+  }
+  100% {
+    transform: rotateZ(270deg);
   }
 }
